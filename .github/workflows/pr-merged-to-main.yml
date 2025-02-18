@@ -27,5 +27,5 @@ jobs:
               ],
               "markdown": true
             }]
-          }' ${{ secrets.TEAMS_WEBHOOK_URL }}
+          }' ${{ "secrets.TEAMS_WEBHOOK_URL" }}
 
