@@ -1,0 +1,31 @@
+name: Notify Teams on PR Merge
+
+on:
+  pull_request:
+    branches: ["main"]
+    types:
+      - closed
+
+jobs:
+  notify-teams:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Microsoft Teams
+        run: |
+          curl -H "Content-Type: application/json" -d '{
+            "title": "Pull Request Merged",
+            "text": "**PR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}** has been merged into `main` by **${{ github.actor }}**",
+            "sections": [{
+              "activityTitle": "Merged PR",
+              "activitySubtitle": "${{ github.event.pull_request.title }}",
+              "facts": [
+                { "name": "Repository", "value": "${{ github.repository }}" },
+                { "name": "Author", "value": "${{ github.event.pull_request.user.login }}" },
+                { "name": "Merged By", "value": "${{ github.actor }}" },
+                { "name": "PR Link", "value": "[View PR](${{ github.event.pull_request.html_url }})" }
+              ],
+              "markdown": true
+            }]
+          }' ${{ secrets.TEAMS_WEBHOOK_URL }}
+
