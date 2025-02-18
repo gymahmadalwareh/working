@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Send message to Microsoft Teams
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{
-          "text": "**Pull Request Merged**\n\nPR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} has been merged into `main` by **${{ github.actor }}**.\n\n[View PR](${{ github.event.pull_request.html_url }})"
-            }' ${{ secrets.TEAMS_WEBHOOK_URL }}
+          PAYLOAD=$(jq -n \
+          --arg text "**Pull Request Merged**\n\nPR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} has been merged into \`main\` by **${{ github.actor }}**.\n\n[View PR](${{ github.event.pull_request.html_url }})" \
+          '{ text: $text }')
+
+          curl -X POST -H "Content-Type: application/json" -d "$PAYLOAD" ${{ secrets.TEAMS_WEBHOOK_URL }}
+
